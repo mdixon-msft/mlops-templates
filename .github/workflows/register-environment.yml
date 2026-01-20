@@ -29,20 +29,6 @@ jobs:
     steps:
       - name: checkout
         uses: actions/checkout@v3
-      - name: Validate AZURE_CREDENTIALS (masked)
-        shell: bash
-        run: |
-          if [ -z "${{ secrets.creds }}" ]; then
-            echo "creds is EMPTY or missing"; exit 1; fi
-          json='${{ secrets.creds }}'
-          if ! echo "$json" | jq -e . >/dev/null 2>&1; then
-            echo "creds is not valid JSON"; exit 1; fi
-          for k in clientId clientSecret tenantId subscriptionId; do
-            ok=$(echo "$json" | jq -r "has(\"$k\") and (.${k} != null and .${k} != \"\")")
-            echo "$k present? $ok"
-            [ "$ok" != "true" ] && { echo "Missing $k"; exit 1; }
-          done
-          # Detect leading/trailing whitespace in clientSecret without revealing it
       - name: "Az CLI login"
         uses: azure/login@v1
         with:
